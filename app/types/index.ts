@@ -60,10 +60,10 @@ export const CHAPTERS: Chapter[] = [
 ]
 
 export const STATUS_CONFIG: Record<ThesisStatus, {
-  it: string; en: string; color: 'amber' | 'blue' | 'green' | 'red'
+  it: string; en: string; color: 'warning' | 'info' | 'success' | 'error'
 }> = {
-  in_attesa:       { it: 'In attesa',      en: 'Pending',      color: 'amber' },
-  presa_in_carico: { it: 'In revisione',   en: 'Under review', color: 'blue'  },
-  approvata:       { it: 'Approvata',      en: 'Approved',     color: 'green' },
-  rifiutata:       { it: 'Rifiutata',      en: 'Rejected',     color: 'red'   },
+  in_attesa:       { it: 'In attesa',      en: 'Pending',      color: 'warning' },
+  presa_in_carico: { it: 'In revisione',   en: 'Under review', color: 'info'    },
+  approvata:       { it: 'Approvata',      en: 'Approved',     color: 'success' },
+  rifiutata:       { it: 'Rifiutata',      en: 'Rejected',     color: 'error'   },
 }
