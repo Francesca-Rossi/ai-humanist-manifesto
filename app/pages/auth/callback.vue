@@ -10,37 +10,39 @@
 </template>
 
 <script setup lang="ts">
-const route = useRoute()
 const router = useRouter()
+const route = useRoute()
 const supabase = useSupabaseClient()
 
 onMounted(async () => {
-  const code = route.query.code as string
+  // @nuxtjs/supabase gestisce automaticamente il code exchange
+  // Aspettiamo solo che la sessione sia pronta
+  let attempts = 0
+  const maxAttempts = 10
 
-  if (code) {
-    const { error } = await supabase.auth.exchangeCodeForSession(code)
-    if (error) {
-      console.error('Callback error:', error)
+  const checkSession = async () => {
+    const { data: { user } } = await supabase.auth.getUser()
+    
+    if (user) {
+      // Upsert profile
+      const meta = user.user_metadata
+      await supabase.from('profiles').upsert({
+        id: user.id,
+        nome: meta?.nome || meta?.full_name?.split(' ')[0] || null,
+        cognome: meta?.cognome || meta?.full_name?.split(' ').slice(1).join(' ') || null,
+        ruolo: meta?.ruolo || null,
+      }, { onConflict: 'id', ignoreDuplicates: true })
+
+      const redirect = (route.query.redirect as string) || '/area-riservata'
+      await router.push(redirect)
+    } else if (attempts < maxAttempts) {
+      attempts++
+      setTimeout(checkSession, 500)
+    } else {
       await router.push('/auth/login')
-      return
     }
   }
 
-  const { data: { user } } = await supabase.auth.getUser()
-
-  if (user) {
-    const meta = user.user_metadata
-    await supabase.from('profiles').upsert({
-      id: user.id,
-      nome: meta?.nome || meta?.full_name?.split(' ')[0] || null,
-      cognome: meta?.cognome || meta?.full_name?.split(' ').slice(1).join(' ') || null,
-      ruolo: meta?.ruolo || null,
-    }, { onConflict: 'id', ignoreDuplicates: true })
-
-    const redirect = (route.query.redirect as string) || '/area-riservata'
-    await router.push(redirect)
-  } else {
-    await router.push('/auth/login')
-  }
+  await checkSession()
 })
 </script>
