@@ -26,7 +26,7 @@ onMounted(async () => {
     if (user) {
       // Upsert profile
       const meta = user.user_metadata
-      await supabase.from('profiles').upsert({
+      await (supabase.from('profiles') as any).upsert({
         id: user.id,
         nome: meta?.nome || meta?.full_name?.split(' ')[0] || null,
         cognome: meta?.cognome || meta?.full_name?.split(' ').slice(1).join(' ') || null,

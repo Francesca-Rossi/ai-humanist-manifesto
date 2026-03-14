@@ -128,7 +128,7 @@ async function handleRegister() {
   }
 
   if (data.user) {
-    await supabase.from('profiles').upsert({
+    await (supabase.from('profiles') as any).upsert({
       id: data.user.id,
       nome: form.nome || null,
       cognome: form.cognome || null,
