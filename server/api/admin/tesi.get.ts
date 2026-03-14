@@ -6,16 +6,25 @@ export default defineEventHandler(async (event) => {
   if (!user) throw createError({ statusCode: 401, message: 'Non autenticato' })
 
   const userId = user.sub as string
-
   const supabase = getSupabaseAdmin()
 
-  const { error } = await supabase
-    .from('adesioni')
-    .update({ revocata_at: new Date().toISOString() })
-    .eq('user_id', userId)
-    .is('revocata_at', null)
+  // Verifica admin
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('is_admin')
+    .eq('id', userId)
+    .single()
+
+  if (!profile?.is_admin) {
+    throw createError({ statusCode: 403, message: 'Non autorizzato' })
+  }
+
+  const { data, error } = await supabase
+    .from('tesi_proposte')
+    .select('*')
+    .order('created_at', { ascending: false })
 
   if (error) throw createError({ statusCode: 500, message: error.message })
 
-  return { success: true }
+  return data
 })

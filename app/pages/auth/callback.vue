@@ -15,7 +15,19 @@ const router = useRouter()
 const supabase = useSupabaseClient()
 
 onMounted(async () => {
+  const code = route.query.code as string
+
+  if (code) {
+    const { error } = await supabase.auth.exchangeCodeForSession(code)
+    if (error) {
+      console.error('Callback error:', error)
+      await router.push('/auth/login')
+      return
+    }
+  }
+
   const { data: { user } } = await supabase.auth.getUser()
+
   if (user) {
     const meta = user.user_metadata
     await supabase.from('profiles').upsert({
@@ -27,6 +39,8 @@ onMounted(async () => {
 
     const redirect = (route.query.redirect as string) || '/area-riservata'
     await router.push(redirect)
+  } else {
+    await router.push('/auth/login')
   }
 })
 </script>

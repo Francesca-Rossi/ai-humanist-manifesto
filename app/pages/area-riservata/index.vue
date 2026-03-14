@@ -2,14 +2,19 @@
   <div class="space-y-12">
 
     <!-- Greeting -->
-    <div class="border-b pb-8" style="border-color:var(--paper-border)">
-      <p class="font-mono-ink text-[10px] tracking-[0.2em] uppercase mb-2" style="color:var(--muted)">
-        Area Riservata
-      </p>
-      <h1 class="font-display text-4xl font-black tracking-tight">
-        Ciao, <span class="italic" style="color:var(--red)">{{ nome }}</span>
-      </h1>
-    </div>
+    <div class="border-b pb-8 flex items-start justify-between" style="border-color:var(--paper-border)">
+  <div>
+    <p class="font-mono-ink text-[10px] tracking-[0.2em] uppercase mb-2" style="color:var(--muted)">
+      Area Riservata
+    </p>
+    <h1 class="font-display text-4xl font-black tracking-tight">
+      Ciao, <span class="italic" style="color:var(--red)">{{ nome }}</span>
+    </h1>
+  </div>
+  <NuxtLink v-if="isAdmin" to="/admin" class="btn-ink" style="background:var(--red);border-color:var(--red)">
+    Pannello Admin →
+  </NuxtLink>
+</div>
 
     <!-- Adesione -->
     <section class="border" style="border-color:var(--paper-border)">
@@ -72,9 +77,12 @@
     </section>
 
     <!-- Revoca modal -->
-    <UModal v-model="confirmRevoke">
-      <div class="p-8">
-        <h3 class="font-display text-xl font-bold mb-2">Revocare l'adesione?</h3>
+    <UModal v-model:open="confirmRevoke">
+    <template #content>
+      <div class="p-8" style="background:#fefdf9">
+        <h3 class="font-display text-xl font-bold mb-2" style="color:var(--ink)">
+          Revocare l'adesione?
+        </h3>
         <p class="text-sm mb-6" style="color:var(--muted)">
           Puoi sempre ri-aderire in seguito. La tua adesione sarà rimossa dalla lista dei firmatari.
         </p>
@@ -86,6 +94,7 @@
           <button @click="confirmRevoke = false" class="btn-outline">Annulla</button>
         </div>
       </div>
+    </template>
     </UModal>
 
     <!-- Tesi proposte -->
@@ -159,11 +168,17 @@ const supabase = useSupabaseClient()
 const user = useSupabaseUser()
 const toast = useToast()
 
+const userId = user.value?.id || user.value?.sub as string
+
 const [profileRes, adesioneRes, tesiRes] = await Promise.all([
-  supabase.from('profiles').select('nome').eq('id', user.value!.id).single(),
-  supabase.from('adesioni').select('*').eq('user_id', user.value!.id).maybeSingle(),
-  supabase.from('tesi_proposte').select('*').eq('user_id', user.value!.id).order('created_at', { ascending: false }),
+  supabase.from('profiles').select('nome, is_admin').eq('id', userId).single(),
+  supabase.from('adesioni').select('*').eq('user_id', userId).maybeSingle(),
+  supabase.from('tesi_proposte').select('*').eq('user_id', userId).order('created_at', { ascending: false }),
 ])
+
+const isAdmin = computed(() => {
+  return (profileRes.data as any)?.is_admin === true
+})
 
 const nome = computed(() => profileRes.data?.nome || user.value?.email?.split('@')[0] || 'Utente')
 const adesione = ref<Adesione | null>(adesioneRes.data as Adesione | null)
@@ -185,8 +200,13 @@ async function handleSign() {
   try {
     await $fetch('/api/adesione', { method: 'POST', body: { anonima: anonymous.value } })
     toast.add({ title: '✦ Manifesto firmato!', description: 'Grazie per aver aderito.', color: 'green' })
-    const { data } = await supabase.from('adesioni').select('*').eq('user_id', user.value!.id).single()
-    adesione.value = data as Adesione
+    // Ricarica i dati dell'adesione
+    const { data } = await supabase
+      .from('adesioni')
+      .select('*')
+      .eq('user_id', userId)
+      .maybeSingle()
+    adesione.value = data as Adesione | null
   } catch (e: any) {
     signError.value = e?.data?.message || 'Errore durante la firma.'
   }
@@ -199,7 +219,7 @@ async function handleRevoke() {
     await $fetch('/api/adesione', { method: 'DELETE' })
     toast.add({ title: 'Adesione revocata' })
     confirmRevoke.value = false
-    const { data } = await supabase.from('adesioni').select('*').eq('user_id', user.value!.id).single()
+    const { data } = await supabase.from('adesioni').select('*').eq('user_id', userId).single()
     adesione.value = data as Adesione
   } catch (e: any) {
     signError.value = e?.data?.message || 'Errore durante la revoca.'

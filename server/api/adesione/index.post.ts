@@ -1,17 +1,19 @@
-import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server'
+import { serverSupabaseUser } from '#supabase/server'
+import { getSupabaseAdmin } from '../../utils/supabase-admin'
 
 export default defineEventHandler(async (event) => {
   const user = await serverSupabaseUser(event)
   if (!user) throw createError({ statusCode: 401, message: 'Non autenticato' })
 
-  const supabase = await serverSupabaseClient(event)
+  const userId = user.sub as string // ← usa sub invece di id
+
+  const supabase = getSupabaseAdmin()
   const { anonima } = await readBody(event)
 
-  // Controlla se esiste già
   const { data: existing } = await supabase
     .from('adesioni')
     .select('*')
-    .eq('user_id', user.id)
+    .eq('user_id', userId)
     .maybeSingle()
 
   if (existing && !existing.revocata_at) {
@@ -27,7 +29,7 @@ export default defineEventHandler(async (event) => {
   } else {
     const { error } = await supabase
       .from('adesioni')
-      .insert([{ user_id: user.id, anonima: !!anonima }])
+      .insert([{ user_id: userId, anonima: !!anonima }])
     if (error) throw createError({ statusCode: 500, message: error.message })
   }
 

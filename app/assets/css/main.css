@@ -117,3 +117,13 @@ textarea.input-ink { resize: vertical; min-height: 120px; }
 ::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: var(--paper-dark); }
 ::-webkit-scrollbar-thumb { background: var(--muted); }
+
+.btn-outline:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.btn-ink:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}

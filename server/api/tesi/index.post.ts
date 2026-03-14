@@ -1,8 +1,11 @@
-import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server'
+import { serverSupabaseUser } from '#supabase/server'
+import { getSupabaseAdmin } from '../../utils/supabase-admin'
 
 export default defineEventHandler(async (event) => {
   const user = await serverSupabaseUser(event)
   if (!user) throw createError({ statusCode: 401, message: 'Non autenticato' })
+
+  const userId = user.sub as string
 
   const { capitolo, testo_it, testo_en, motivazione } = await readBody(event)
 
@@ -14,12 +17,12 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, message: 'Testo troppo breve (min 20 caratteri per lingua).' })
   }
 
-  const supabase = await serverSupabaseClient(event)
+  const supabase = getSupabaseAdmin()
 
   const { data, error } = await supabase
     .from('tesi_proposte')
     .insert([{
-      user_id: user.id,
+      user_id: userId,
       capitolo_riferimento: parseInt(capitolo),
       testo_it: testo_it.trim(),
       testo_en: testo_en.trim(),

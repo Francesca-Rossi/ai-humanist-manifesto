@@ -141,12 +141,14 @@ const route = useRoute()
 const supabase = useSupabaseClient()
 const user = useSupabaseUser()
 
+const userId = user.value?.id || (user.value as any)?.sub as string
+
 const { data: tesi, pending } = await useAsyncData(`tesi-${route.params.id}`, async () => {
   const { data } = await supabase
     .from('tesi_proposte')
     .select('*')
     .eq('id', route.params.id)
-    .eq('user_id', user.value!.id)
+    .eq('user_id', userId)
     .single()
   return data as TesiProposta | null
 })
