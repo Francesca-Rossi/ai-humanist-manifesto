@@ -1,12 +1,12 @@
 import { serverSupabaseUser } from '#supabase/server'
 import { getSupabaseAdmin } from '../../utils/supabase-admin'
+import { sendAdesionEmail } from '../../utils/email'
 
 export default defineEventHandler(async (event) => {
   const user = await serverSupabaseUser(event)
   if (!user) throw createError({ statusCode: 401, message: 'Non autenticato' })
 
-  const userId = user.sub as string // ← usa sub invece di id
-
+  const userId = user.sub as string
   const supabase = getSupabaseAdmin()
   const { anonima } = await readBody(event)
 
@@ -31,6 +31,18 @@ export default defineEventHandler(async (event) => {
       .from('adesioni')
       .insert([{ user_id: userId, anonima: !!anonima }])
     if (error) throw createError({ statusCode: 500, message: error.message })
+  }
+
+  // Invia email di conferma
+  try {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('nome')
+      .eq('id', userId)
+      .single()
+    await sendAdesionEmail(user.email!, profile?.nome || 'Firmatario')
+  } catch (e) {
+    console.error('Email error:', e)
   }
 
   return { success: true }

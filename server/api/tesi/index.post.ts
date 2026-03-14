@@ -1,5 +1,6 @@
 import { serverSupabaseUser } from '#supabase/server'
 import { getSupabaseAdmin } from '../../utils/supabase-admin'
+import { sendAdminNewThesisEmail } from '../../utils/email'
 
 export default defineEventHandler(async (event) => {
   const user = await serverSupabaseUser(event)
@@ -33,6 +34,19 @@ export default defineEventHandler(async (event) => {
     .single()
 
   if (error) throw createError({ statusCode: 500, message: error.message })
+
+  // Notifica admin
+  try {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('nome, cognome')
+      .eq('id', userId)
+      .single()
+    const nome = [profile?.nome, profile?.cognome].filter(Boolean).join(' ') || 'Anonimo'
+    await sendAdminNewThesisEmail(nome, user.email!, parseInt(capitolo), testo_it, testo_en, motivazione)
+  } catch (e) {
+    console.error('Email error:', e)
+  }
 
   return data
 })

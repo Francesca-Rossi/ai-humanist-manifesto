@@ -1,5 +1,6 @@
 import { serverSupabaseUser } from '#supabase/server'
 import { getSupabaseAdmin } from '../../utils/supabase-admin'
+import { sendThesisStatusEmail } from '../../utils/email'
 
 export default defineEventHandler(async (event) => {
   const user = await serverSupabaseUser(event)
@@ -8,7 +9,7 @@ export default defineEventHandler(async (event) => {
   const userId = user.sub as string
   const supabase = getSupabaseAdmin()
 
-  // Verifica che sia admin
+  // Verifica admin
   const { data: profile } = await supabase
     .from('profiles')
     .select('is_admin')
@@ -36,19 +37,49 @@ export default defineEventHandler(async (event) => {
 
   if (error) throw createError({ statusCode: 500, message: error.message })
 
-  // Se approvata, inserisci nella tabella tesi
+  // Se approvata inserisci nella tabella tesi
   if (status === 'approvata' && capitolo && numero_tesi && testo_it && testo_en) {
     const { error: insertError } = await supabase
       .from('tesi')
-      .insert([{
-        capitolo,
-        numero_tesi,
-        testo_it,
-        testo_en,
-      }])
-
+      .insert([{ capitolo, numero_tesi, testo_it, testo_en }])
     if (insertError) throw createError({ statusCode: 500, message: insertError.message })
   }
+
+  // Invia email all'utente
+  try {
+  const { data: tesi } = await supabase
+    .from('tesi_proposte')
+    .select('user_id, testo_it')
+    .eq('id', id)
+    .single()
+
+  console.log('Tesi trovata:', tesi)
+
+  if (tesi) {
+    const { data: userData } = await supabase.auth.admin.getUserById(tesi.user_id)
+    const { data: userProfile } = await supabase
+      .from('profiles')
+      .select('nome')
+      .eq('id', tesi.user_id)
+      .single()
+
+    console.log('User email:', userData?.user?.email)
+    console.log('User profile:', userProfile)
+
+    if (userData?.user?.email) {
+      const emailResult = await sendThesisStatusEmail(
+        userData.user.email,
+        userProfile?.nome || 'Firmatario',
+        tesi.testo_it,
+        status,
+        motivazione_risposta,
+      )
+      console.log('Email result:', emailResult)
+    }
+  }
+} catch (e) {
+  console.error('Email error:', e)
+}
 
   return { success: true }
 })
