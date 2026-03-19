@@ -37,13 +37,13 @@
         </p>
         <h1 class="font-display font-black leading-[0.92] tracking-tight mb-10"
             style="font-size:clamp(48px,8vw,110px)">
-          {{ t('AI al servizio', 'AI in service') }}<br>
-          <span class="text-red italic">{{ t("dell'Uomo", 'of Humanity') }}</span>
+          {{ t('AI al servizio', 'AI at human') }}<br>
+          <span class="text-red italic">{{ t("dell'Uomo", 'service') }}</span>
         </h1>
         <p class="font-display italic max-w-2xl" style="font-size:clamp(16px,2vw,22px);color:var(--muted)">
           {{ t(
-            "97 tesi per un'intelligenza artificiale al servizio dell'uomo, dei dati privati e della competenza.",
-            "97 theses for an artificial intelligence in service of humanity, private data, and competence."
+            "Per un'intelligenza artificiale al servizio dell'uomo, dei dati privati e della competenza.",
+            "For an artificial intelligence in service of humanity, private data, and competence."
           ) }}
         </p>
       </div>
@@ -81,7 +81,7 @@
 
     <!-- Manifesto -->
     <section id="manifesto">
-      <div class="max-w-5xl mx-auto px-8 md:px-16 py-20">
+      <div class="max-w-5xl mx-auto px-8 md:px-16 pt-10 pb-20">
         <div class="section-label">{{ t('Il Manifesto','The Manifesto') }}</div>
         <div class="divide-y" style="border-color:var(--paper-border)">
           <div v-for="item in tesiByChapter" :key="item.chapter.num"

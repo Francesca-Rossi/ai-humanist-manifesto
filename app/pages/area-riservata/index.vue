@@ -3,18 +3,18 @@
 
     <!-- Greeting -->
     <div class="border-b pb-8 flex items-start justify-between" style="border-color:var(--paper-border)">
-  <div>
-    <p class="font-mono-ink text-[10px] tracking-[0.2em] uppercase mb-2" style="color:var(--muted)">
-      Area Riservata
-    </p>
-    <h1 class="font-display text-4xl font-black tracking-tight">
-      Ciao, <span class="italic" style="color:var(--red)">{{ nome }}</span>
-    </h1>
-  </div>
-  <NuxtLink v-if="isAdmin" to="/admin" class="btn-ink" style="background:var(--red);border-color:var(--red)">
-    Pannello Admin →
-  </NuxtLink>
-</div>
+      <div>
+        <p class="font-mono-ink text-[10px] tracking-[0.2em] uppercase mb-2" style="color:var(--muted)">
+          Area Riservata
+        </p>
+        <h1 class="font-display text-4xl font-black tracking-tight">
+          Ciao, <span class="italic" style="color:var(--red)">{{ nome }}</span>
+        </h1>
+      </div>
+      <NuxtLink v-if="isAdmin" to="/admin" class="btn-ink" style="background:var(--red);border-color:var(--red)">
+        Pannello Admin →
+      </NuxtLink>
+    </div>
 
     <!-- Adesione -->
     <section class="border" style="border-color:var(--paper-border)">
@@ -70,7 +70,8 @@
           </button>
         </template>
 
-        <div v-if="signError" class="mt-4 border-l-4 p-3" style="border-color:var(--red);background:rgba(192,57,43,0.05)">
+        <div v-if="signError" class="mt-4 border-l-4 p-3"
+             style="border-color:var(--red);background:rgba(192,57,43,0.05)">
           <p class="font-mono-ink text-[12px]" style="color:var(--red)">{{ signError }}</p>
         </div>
       </div>
@@ -78,23 +79,23 @@
 
     <!-- Revoca modal -->
     <UModal v-model:open="confirmRevoke">
-    <template #content>
-      <div class="p-8" style="background:#fefdf9">
-        <h3 class="font-display text-xl font-bold mb-2" style="color:var(--ink)">
-          Revocare l'adesione?
-        </h3>
-        <p class="text-sm mb-6" style="color:var(--muted)">
-          Puoi sempre ri-aderire in seguito. La tua adesione sarà rimossa dalla lista dei firmatari.
-        </p>
-        <div class="flex gap-3">
-          <button @click="handleRevoke" :disabled="signingLoading" class="btn-ink"
-                  style="background:var(--red);border-color:var(--red)">
-            {{ signingLoading ? 'Revoca...' : 'Sì, revoca' }}
-          </button>
-          <button @click="confirmRevoke = false" class="btn-outline">Annulla</button>
+      <template #content>
+        <div class="p-8" style="background:#fefdf9">
+          <h3 class="font-display text-xl font-bold mb-2" style="color:var(--ink)">
+            Revocare l'adesione?
+          </h3>
+          <p class="text-sm mb-6" style="color:var(--muted)">
+            Puoi sempre ri-aderire in seguito. La tua adesione sarà rimossa dalla lista dei firmatari.
+          </p>
+          <div class="flex gap-3">
+            <button @click="handleRevoke" :disabled="signingLoading" class="btn-ink"
+                    style="background:var(--red);border-color:var(--red)">
+              {{ signingLoading ? 'Revoca...' : 'Sì, revoca' }}
+            </button>
+            <button @click="confirmRevoke = false" class="btn-outline">Annulla</button>
+          </div>
         </div>
-      </div>
-    </template>
+      </template>
     </UModal>
 
     <!-- Tesi proposte -->
@@ -168,19 +169,16 @@ const supabase = useSupabaseClient()
 const user = useSupabaseUser()
 const toast = useToast()
 
-const userId = user.value?.id || user.value?.sub as string
+const userId = computed(() => user.value?.id || (user.value as any)?.sub || '')
 
 const [profileRes, adesioneRes, tesiRes] = await Promise.all([
-  supabase.from('profiles').select('nome, is_admin').eq('id', userId).single(),
-  supabase.from('adesioni').select('*').eq('user_id', userId).maybeSingle(),
-  supabase.from('tesi_proposte').select('*').eq('user_id', userId).order('created_at', { ascending: false }),
+  supabase.from('profiles').select('nome, is_admin').eq('id', userId.value).single(),
+  supabase.from('adesioni').select('*').eq('user_id', userId.value).maybeSingle(),
+  supabase.from('tesi_proposte').select('*').eq('user_id', userId.value).order('created_at', { ascending: false }),
 ])
 
-const isAdmin = computed(() => {
-  return (profileRes.data as any)?.is_admin === true
-})
-
-const nome = computed(() => profileRes.data?.nome || user.value?.email?.split('@')[0] || 'Utente')
+const isAdmin = computed(() => (profileRes.data as any)?.is_admin === true)
+const nome = computed(() => (profileRes.data as any)?.nome || user.value?.email?.split('@')[0] || 'Utente')
 const adesione = ref<Adesione | null>(adesioneRes.data as Adesione | null)
 const isActive = computed(() => !!adesione.value && !adesione.value.revocata_at)
 const tesiProposte = ref<TesiProposta[]>((tesiRes.data || []) as TesiProposta[])
@@ -200,11 +198,10 @@ async function handleSign() {
   try {
     await $fetch('/api/adesione', { method: 'POST', body: { anonima: anonymous.value } })
     toast.add({ title: '✦ Manifesto firmato!', description: 'Grazie per aver aderito.', color: 'green' })
-    // Ricarica i dati dell'adesione
     const { data } = await supabase
       .from('adesioni')
       .select('*')
-      .eq('user_id', userId)
+      .eq('user_id', userId.value)
       .maybeSingle()
     adesione.value = data as Adesione | null
   } catch (e: any) {
@@ -219,8 +216,12 @@ async function handleRevoke() {
     await $fetch('/api/adesione', { method: 'DELETE' })
     toast.add({ title: 'Adesione revocata' })
     confirmRevoke.value = false
-    const { data } = await supabase.from('adesioni').select('*').eq('user_id', userId).single()
-    adesione.value = data as Adesione
+    const { data } = await supabase
+      .from('adesioni')
+      .select('*')
+      .eq('user_id', userId.value)
+      .maybeSingle()
+    adesione.value = data as Adesione | null
   } catch (e: any) {
     signError.value = e?.data?.message || 'Errore durante la revoca.'
   }
