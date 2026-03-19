@@ -228,5 +228,5 @@ async function handleRevoke() {
   signingLoading.value = false
 }
 
-useHead({ title: 'Dashboard — AI Humanist Manifesto' })
+useHead({ title: 'Dashboard — AI Humanist Manifest' })
 </script>

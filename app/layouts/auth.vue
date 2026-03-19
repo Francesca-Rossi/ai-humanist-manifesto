@@ -6,7 +6,7 @@
           AI<span class="text-red">H</span>M
         </NuxtLink>
         <p class="font-mono-ink text-[10px] tracking-[0.2em] uppercase mt-2" style="color:var(--muted)">
-          AI Humanist Manifesto
+          AI Humanist Manifest
         </p>
       </div>
       <div style="background:#fefdf9; border: 1px solid var(--paper-border)">

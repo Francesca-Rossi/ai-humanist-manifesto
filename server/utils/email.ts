@@ -23,8 +23,8 @@ const emailBase = (content: string) => `
 </style></head><body>
 <div class="wrap">
   <div class="hdr">
-    <p>AI Humanist Manifesto</p>
-    <h1>97 Tesi per un'AI al servizio dell'Uomo</h1>
+    <p>AI Humanist Manifest</p>
+    <h1>Il manifesto per un'AI al servizio dell'Uomo</h1>
   </div>
   <div class="body">${content}</div>
   <div class="foot">AI Humanist Manifesto — Progetto open-source 2026</div>
@@ -36,7 +36,7 @@ export async function sendAdesionEmail(to: string, nome: string) {
   return resend.emails.send({
     from: config.resendFromEmail as string,
     to,
-    subject: "✦ Hai firmato l'AI Humanist Manifesto",
+    subject: "✦ Hai firmato l'AI Humanist Manifest",
     html: emailBase(`
       <p>Ciao <strong>${nome}</strong>,</p>
       <p>La tua adesione è registrata. Grazie per sostenere un'AI al servizio dell'uomo.</p>

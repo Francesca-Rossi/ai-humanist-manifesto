@@ -355,5 +355,5 @@ async function confermaRifiuta() {
   loadingId.value = null
 }
 
-useHead({ title: 'Admin — AI Humanist Manifesto' })
+useHead({ title: 'Admin — AI Humanist Manifest' })
 </script>
