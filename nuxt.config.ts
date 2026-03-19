@@ -31,11 +31,11 @@ export default defineNuxtConfig({
 
   app: {
     head: {
-      title: 'AI Humanist Manifesto — 97 Tesi',
+      title: 'AI Humanist Manifest',
       meta: [
         { charset: 'utf-8' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-        { name: 'description', content: "97 tesi per un'intelligenza artificiale al servizio dell'uomo." },
+        { name: 'description', content: "Il manifesto per un'intelligenza artificiale al servizio dell'uomo." },
       ],
       link: [
         { rel: 'preconnect', href: 'https://fonts.googleapis.com' },

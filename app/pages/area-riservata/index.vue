@@ -160,10 +160,10 @@
 </template>
 
 <script setup lang="ts">
+definePageMeta({ layout: 'dashboard' })
 import type { TesiProposta, Adesione } from '~/types'
 import { CHAPTERS, STATUS_CONFIG } from '~/types'
 
-definePageMeta({ layout: 'dashboard' })
 
 const supabase = useSupabaseClient()
 const user = useSupabaseUser()
@@ -228,5 +228,5 @@ async function handleRevoke() {
   signingLoading.value = false
 }
 
-useHead({ title: 'Dashboard — AI Humanist Manifesto' })
+useHead({ title: 'Dashboard — AI Humanist Manifest' })
 </script>

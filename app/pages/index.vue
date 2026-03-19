@@ -33,7 +33,7 @@
            style="border: 100px solid rgba(192,57,43,0.05)" />
       <div class="flex flex-col justify-center max-w-4xl">
         <p class="font-mono-ink text-[11px] tracking-[0.2em] uppercase text-red mb-8">
-          {{ t('Manifesto Umanista per l\'Intelligenza Artificiale — 2026', 'AI Humanist Manifesto — 2026') }}
+          {{ t('Manifesto Umanista per l\'Intelligenza Artificiale — 2026', 'AI Humanist Manifest — 2026') }}
         </p>
         <h1 class="font-display font-black leading-[0.92] tracking-tight mb-10"
             style="font-size:clamp(48px,8vw,110px)">
@@ -58,8 +58,8 @@
             <p class="font-display text-4xl font-bold text-red leading-none">{{ total }}</p>
           </div>
           <div>
-            <p class="font-mono-ink text-[10px] tracking-[0.2em] uppercase mb-1" style="color:var(--muted)">Tesi</p>
-            <p class="font-display text-4xl font-bold leading-none">97</p>
+            <p class="font-mono-ink text-[10px] tracking-[0.2em] uppercase mb-1" style="color:var(--muted)">PILASTRI</p>
+            <p class="font-display text-4xl font-bold leading-none">7</p>
           </div>
           <div>
             <p class="font-mono-ink text-[10px] tracking-[0.2em] uppercase mb-1" style="color:var(--muted)">
@@ -70,7 +70,7 @@
         </div>
         <div class="flex gap-4 flex-wrap">
           <NuxtLink to="/area-riservata" class="btn-ink">
-            ✦ {{ t('Firma il Manifesto','Sign the Manifesto') }}
+            ✦ {{ t('Firma il Manifesto','Sign the Manifest') }}
           </NuxtLink>
           <a href="#manifesto" class="btn-outline">
             {{ t('Leggi le Tesi','Read the Theses') }}
@@ -82,7 +82,7 @@
     <!-- Manifesto -->
     <section id="manifesto">
       <div class="max-w-5xl mx-auto px-8 md:px-16 pt-10 pb-20">
-        <div class="section-label">{{ t('Il Manifesto','The Manifesto') }}</div>
+        <div class="section-label">{{ t('Il Manifesto','The Manifest') }}</div>
         <div class="divide-y" style="border-color:var(--paper-border)">
           <div v-for="item in tesiByChapter" :key="item.chapter.num"
                class="reveal grid md:grid-cols-[80px_1fr] gap-6 md:gap-8 py-12">
@@ -155,7 +155,7 @@
 
         <div class="mt-12 pt-8 border-t flex gap-4 flex-wrap" style="border-color:var(--paper-border)">
           <NuxtLink to="/area-riservata" class="btn-ink">
-            ✦ {{ t('Aderisci al Manifesto','Sign the Manifesto') }}
+            ✦ {{ t('Aderisci al Manifesto','Sign the Manifest') }}
           </NuxtLink>
           <NuxtLink to="/auth/register" class="btn-outline">
             {{ t('Crea un account','Create an account') }}
@@ -168,7 +168,7 @@
     <footer class="px-8 md:px-16 py-12 flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-t-2 border-ink">
       <div>
         <p class="font-display text-2xl font-bold">
-          AI <span style="color:var(--red)">Humanist</span> Manifesto
+          AI <span style="color:var(--red)">Humanist</span> Manifest
         </p>
         <p class="font-mono-ink text-[10px] mt-2 tracking-[0.1em]" style="color:var(--muted)">
           {{ t('Progetto open-source — 2026','Open-source project — 2026') }}
@@ -197,7 +197,7 @@ const supabase = useSupabaseClient()
 const scrolled = ref(false)
 
 const navLinks = [
-  { href: '#manifesto', it: 'Il Manifesto', en: 'The Manifesto' },
+  { href: '#manifesto', it: 'Il Manifesto', en: 'The Manifest' },
   { href: '#firmatari', it: 'Firmatari',    en: 'Signatories' },
   { href: '/area-riservata', it: 'Area Riservata', en: 'My Account' },
 ]
@@ -231,5 +231,5 @@ onMounted(() => {
   document.querySelectorAll('.reveal').forEach(el => observer.observe(el))
 })
 
-useHead({ title: 'AI Humanist Manifesto — 97 Tesi' })
+useHead({ title: 'AI Humanist Manifest' })
 </script>

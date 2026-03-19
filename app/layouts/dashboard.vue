@@ -43,8 +43,9 @@ const toast = useToast()
 
 const { data: profile } = await useAsyncData('profile', async () => {
   if (!user.value) return null
-  const { data } = await supabase.from('profiles').select('nome, cognome').eq('id', user.value.id).single()
-  return data
+  const userId = user.value?.id || (user.value as any)?.sub
+  const { data } = await supabase.from('profiles').select('nome, cognome').eq('id', userId).single()
+  return data as { nome: string | null, cognome: string | null } | null
 })
 
 const displayName = computed(() => {
@@ -54,7 +55,7 @@ const displayName = computed(() => {
 
 async function logout() {
   await supabase.auth.signOut()
-  toast.add({ title: 'Uscita effettuata', icon: 'i-heroicons-check-circle' })
+  toast.add({ title: 'Uscita effettuata' })
   await router.push('/')
 }
 </script>
